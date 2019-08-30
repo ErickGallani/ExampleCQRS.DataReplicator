@@ -1,0 +1,18 @@
+sudo: required
+services:
+- docker
+os:
+- linux
+
+before_install:
+  - docker build -t erickgallani/examplecqrs-datareplicator -f Dockerfile.ci .
+
+script:
+  - docker run erickgallani/examplecqrs-datareplicator dotnet test src/PaymentGateway.sln
+
+after_success:
+  - docker build -t erickgallani/examplecqrs-datareplicator .
+  # Login to docker CI
+  - echo "$DOCKER_HUB_PASS" | docker login -u "$DOCKER_HUB_LOGIN" --password-stdin
+  # Push images to docker hub
+  - docker push erickgallani/paymentgateway
